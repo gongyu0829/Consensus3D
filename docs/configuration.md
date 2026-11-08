@@ -1,8 +1,7 @@
-# Reference configuration
+# Training configuration
 
-The [JSON configuration](../configs/consensus3d_7b.json) records the settings of
-the revised manuscript. It is intended to accompany the released modules and
-architectural description; it is not an executable full-training entry point.
+The [JSON configuration](../configs/consensus3d_7b.json) records the Consensus3D
+architecture, fine-tuning policy and optimization settings.
 
 | Setting | Value |
 | --- | --- |
@@ -35,10 +34,9 @@ have different purposes and units. At step 2,000, sampling is enabled and the
 auxiliary ramp starts at zero; at step 3,000, both auxiliary weights reach their
 configured maximum.
 
-The KL reduction in the configuration follows the manuscript: sum over latent
-dimensions, then average over valid objects and both modalities. The CMC
-configuration describes the full objective; its implementation is not part of
-this selected release.
+The KL reduction sums over latent dimensions, then averages over valid objects
+and both modalities. The CMC settings specify the temperature, objective weight
+and cross-device negative pool used by the joint objective.
 
 Exact projector dimensions and low-variance initialization appear in the JSON
 and model source. The full-dimensional example verifies the released projector

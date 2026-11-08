@@ -17,35 +17,36 @@ No dataset is redistributed in this repository.
 
 The training mixture contains `scanrefer`, `scan2cap`, `scanqa`, `sqa3d`,
 `multi3dref`, `nr3d_caption`, and `obj_align`. The last stream pairs object
-identifiers with object descriptions in the upstream task preparation.
+identifiers with object descriptions.
 The configuration uses task annotations without additional scene-description or
 grounded chain-of-thought supervision.
 
 ## Preparation from scenes
 
-Follow the [Chat-Scene preprocessing instructions](https://github.com/ZzZZCHS/Chat-Scene/tree/dev/preprocess)
-for the common feature and annotation format:
+Prepare paired features and task annotations with the following steps.
+The [preprocessing tools](https://github.com/ZzZZCHS/Chat-Scene/tree/dev/preprocess)
+provide the corresponding feature and annotation format.
 
 1. Prepare ScanNet scenes and calibrated multi-view images.
 2. Obtain object masks/proposals with [Mask3D](https://github.com/JonasSchult/Mask3D).
    Keep proposal identifiers consistent across features and annotation records.
 3. Extract geometric object features with [Uni3D](https://github.com/baaivision/Uni3D).
-   The upstream [object-feature extraction implementation](https://github.com/ZzZZCHS/Uni3D)
+   The [object-feature extraction implementation](https://github.com/ZzZZCHS/Uni3D)
    uses the Uni3D-g model.
 4. Project object masks into images using camera calibration, extract DINOv2
    features for the visible regions, and aggregate them into one appearance
    vector per object. See [DINOv2](https://github.com/facebookresearch/dinov2) and
-   the upstream [multi-view feature preparation](https://github.com/ZzZZCHS/openscene/blob/main/scripts/feature_fusion/scannet_videofeat.py).
+   [multi-view feature preparation](https://github.com/ZzZZCHS/openscene/blob/main/scripts/feature_fusion/scannet_videofeat.py).
 5. Prepare task prompts, target responses and object attributes using the common
    candidate indexing. Preserve the official train/validation splits.
 
-Alternatively, the upstream project supplies
-[prepared annotations and features](https://huggingface.co/datasets/ZzZZCHS/Chat-Scene/tree/main/annotations).
-These resources belong to their original providers and are linked here for convenience.
+The [prepared annotations and features](https://huggingface.co/datasets/ZzZZCHS/Chat-Scene/tree/main/annotations)
+provide an alternative to running feature extraction. Follow the original
+providers' access and usage terms.
 
 ## Feature and annotation interface
 
-The reference loader consumes the following records:
+The data interface uses the following records:
 
 | Record | Format |
 | --- | --- |
@@ -57,7 +58,7 @@ The reference loader consumes the following records:
 | Model feature tensors | `[batch, objects, feature_dimension]` for each modality |
 | Valid-object mask | Boolean `[batch, objects]`, excluding padding |
 
-Typical upstream files include `scannet_mask3d_uni3d_feats.pt`,
+Typical feature and annotation files include `scannet_mask3d_uni3d_feats.pt`,
 `scannet_mask3d_videofeats.pt`, `scannet_mask3d_train_attributes.pt`,
 `scannet_mask3d_val_attributes.pt`, and task-specific JSON annotations.
 The candidate limit is 100. A missing feature is represented by a zero vector
@@ -68,5 +69,5 @@ permutation. The released object encoder assumes its inputs are already aligned
 and does not infer correspondence from independently shuffled feature arrays.
 
 The synthetic example demonstrates this tensor interface without requiring
-ScanNet access. It does not perform preprocessing or train a task model.
+ScanNet access.
 

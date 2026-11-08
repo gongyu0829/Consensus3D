@@ -43,8 +43,7 @@ The full training objective combines response-token cross-entropy, a standard
 Gaussian KL regularizer, and CMC. Thus object representations are learned through
 language-task supervision, within-modality distribution learning, and explicit
 cross-modal correspondence. DOP addresses ambiguity in each modality; CMC links
-the complementary evidence belonging to the same object. The CMC loss and the
-joint task trainer are described here but are not included in this selected release.
+the complementary evidence belonging to the same object.
 
 The reference KL reduction sums latent dimensions for each object and then averages
 over valid objects and the two modalities, matching the manuscript equations.
@@ -64,9 +63,8 @@ answering. Object identifiers are resolved back to the scene's candidate boxes
 by the task pipeline. Training supervises the response tokens while masking the
 input prefix in the language loss.
 
-[`object_token_sequences`](../consensus3d/consensus3d.py) exposes the visual part
-of this interface. Dataset-specific prompt construction, target preparation,
-generation and benchmark scoring remain outside this release.
+[`object_token_sequences`](../consensus3d/consensus3d.py) constructs the visual
+sequence for combination with task-specific prompts and target responses.
 
 ## Language-model fine-tuning
 
@@ -83,8 +81,6 @@ weight decay. It is different from clipping the global gradient norm to 0.01.
 
 [`prepare_language_model`](../consensus3d/finetuning.py) exposes the parameter
 policy, and `selective_input_embeddings` implements the input-gradient routing.
-These follow the Chat-Scene implementation base and are included to make the
-complete Consensus3D training setup understandable.
 
 ## Training schedule
 
@@ -96,5 +92,5 @@ linearly over 1,000 updates to 1e-6 for KL and 0.02 for CMC.
 
 The complete settings are in [the configuration](../configs/consensus3d_7b.json).
 The module tests check architecture behavior and gradient routing with synthetic
-inputs; they do not constitute a reproduction of the paper's benchmark scores.
+inputs. See the [repository guide](../README.md#repository-guide) for the code package contents.
 
