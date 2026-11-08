@@ -1,4 +1,4 @@
-"""Behavioral checks for the selected modules, without datasets or downloaded weights."""
+"""Behavioral checks for object representations and language-model adaptation."""
 
 from pathlib import Path
 import unittest
