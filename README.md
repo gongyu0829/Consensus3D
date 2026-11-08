@@ -1,100 +1,107 @@
-# Consensus3D
+<h1 align="center">Consensus3D</h1>
+<p align="center"><strong>Constructing Probabilistic Object Representations for 3D Scene Understanding</strong></p>
+<p align="center">
+  <a href="#method">Method</a> ·
+  <a href="#results">Results</a> ·
+  <a href="#getting-started">Getting started</a> ·
+  <a href="docs/data_preparation.md">Data preparation</a> ·
+  <a href="docs/configuration.md">Training settings</a>
+</p>
 
-**Constructing Probabilistic Object Representations for 3D Scene Understanding**
+Consensus3D learns probabilistic representations of an object's geometry and
+appearance, and aligns their shared semantics before language reasoning.
+The resulting object tokens support 3D visual grounding, dense captioning,
+and question answering through a common language interface.
 
-Consensus3D represents each object's geometry and appearance as paired latent
-distributions before supplying visual tokens to a language model. The Distributional
-Object Projector (DOP) learns ambiguity within each modality, while Cross-Modal
-Consensus (CMC) aligns representations of the same object across modalities.
-The resulting object interface supports visual grounding, dense captioning and
-question answering over 3D scenes.
+<p align="center">
+  <img src="assets/framework.png" alt="Consensus3D framework: paired geometric and appearance features, distributional object projection, cross-modal consensus, and language-model responses." width="100%">
+</p>
 
-## Selected implementation release
+## Method
 
-This release provides executable object-representation modules, the language-model
-fine-tuning policy, reference configuration, and data-preparation documentation.
-It supports inspection of the architecture and verification of module behavior.
-The complete task trainer, CMC loss implementation, benchmark evaluation pipeline,
-datasets and trained checkpoints are outside this release.
+- **Distributional Object Projector (DOP).** Independent geometry and appearance
+  branches learn object distributions in the language embedding space. Their
+  means encode object semantics, while learned variances represent ambiguity
+  in the visual evidence.
+- **Cross-Modal Consensus (CMC).** An instance-level contrastive objective aligns
+  the paired 2D and 3D representations of the same object. Together with response
+  supervision and distributional regularization, it learns object tokens that
+  preserve complementary evidence across modalities.
+- **Stable probabilistic learning.** Low-variance initialization and deterministic
+  warm-up establish the object-language mapping before sampled-token training.
+  Inference uses the learned means.
 
-| Component | Location | What can be inspected |
-| --- | --- | --- |
-| Data and preprocessing | [Data preparation](docs/data_preparation.md) | Dataset sources, object proposals, paired features and annotation schema |
-| Model architecture | [Architecture](docs/architecture.md) | The complete flow from scene observations to task responses |
-| DOP and object tokens | [consensus3d.py](consensus3d/consensus3d.py) | Independent branches, distribution parameters, sampling, mean inference and token ordering |
-| LLM fine-tuning | [finetuning.py](consensus3d/finetuning.py) | Frozen backbone, LoRA targets, trainable embeddings/output head and selective gradients |
-| Optimization settings | [Reference configuration](configs/consensus3d_7b.json) | Batches, learning rate, warm-up schedules and objective settings |
-| Module checks | [Tests](tests/test_modules.py) | Sampling behavior, token masks and actual LoRA/gradient routing on a small random LLM |
+The [architecture guide](docs/architecture.md) explains the complete flow from
+scene observations and object proposals to language-model responses.
 
-## Framework
+## Results
 
-1. Mask3D produces object proposals from a ScanNet scene. Frozen Uni3D and DINOv2
-   encoders provide geometric and multi-view appearance features for each proposal.
-2. Independent DOP branches transform the paired features into distributions in
-   the language embedding space. Training uses mean tokens during deterministic
-   warm-up and sampled tokens during probabilistic adaptation; inference uses means.
-3. CMC aligns the two modalities for the same object, while separating unmatched
-   objects. Response generation and KL regularization jointly supervise the object
-   interface with the consensus objective.
-4. Each object is represented by its identifier followed by geometric and appearance
-   tokens. These tokens and the textual instruction enter Vicuna-7B-v1.5,
-   which generates object references, descriptions or answers for the requested task.
+Results reported in the paper across five 3D scene-understanding benchmarks:
 
-See [Architecture and optimization](docs/architecture.md) for the training policy
-and the roles of DOP and CMC in this flow.
+| Method | ScanRefer Acc@0.5 | Multi3DRefer F1@0.5 | Scan2Cap CIDEr@0.5 | ScanQA CIDEr | SQA3D EM |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Consensus3D | 52.2 | 55.1 | 77.4 | 89.6 | 55.0 |
 
-## Installation and module inspection
+Feature-removal experiments further show improved grounding robustness with
+incomplete object evidence. Learned uncertainty increases as feature information
+is removed and is associated with harder-to-ground objects.
 
-Use Python 3.10 or newer. Install a PyTorch build appropriate for the local device,
-then install the remaining dependencies:
+## Getting started
+
+Use Python 3.10 or newer and a PyTorch build appropriate for your device.
 
 ```bash
+git clone https://github.com/gongyu0829/Consensus3D.git
+cd Consensus3D
 python -m pip install -r requirements.txt
 python examples/inspect_object_encoder.py
-python -m unittest discover -s tests -v
 ```
 
-The example uses small dimensions and synthetic features by default. To inspect
-the manuscript's object-projector dimensions, run:
+The example runs on CPU with synthetic paired object features. It demonstrates
+probabilistic projection, the transition from warm-up to sampling, mean-based
+inference, and construction of the object-token sequence.
+
+To use the paper's projector dimensions and run the module tests:
 
 ```bash
 python examples/inspect_object_encoder.py --full-dimensions
+python -m unittest discover -s tests -v
 ```
 
-Both examples run on CPU without downloading a language model or a dataset.
-They check the released modules, rather than evaluating task benchmark accuracy.
-Language-model adaptation accepts a locally supplied causal language model whose
-vocabulary has been extended with object identifiers. The reference backbone is
-[Vicuna-7B-v1.5](https://huggingface.co/lmsys/vicuna-7b-v1.5); obtain its weights
-under the model provider's terms.
+The tests cover distribution sampling, object masks, token ordering, and actual
+LoRA adaptation and gradient routing on a small randomly initialized language model.
 
-## Data and configuration
+## Data and training
 
-Follow [Data preparation](docs/data_preparation.md) for official dataset links,
-the upstream preprocessing tools and the paired-feature format. The released
-configuration uses two RTX 4090 GPUs, 32 training samples per GPU, a global batch
-of 64 and two epochs. Evaluation uses 16 samples per GPU. The effective base
-learning rate is `3.2e-4`; the configuration records the `5e-6` argument and its
-batch scaling explicitly. [Configuration notes](docs/configuration.md) distinguish
-learning-rate warm-up from deterministic DOP warm-up.
+Mask3D provides object proposals, and frozen Uni3D and DINOv2 encoders supply
+paired geometric and multi-view appearance features. Each object's identifier
+and visual tokens are combined with the language instruction and passed to
+[Vicuna-7B-v1.5](https://huggingface.co/lmsys/vicuna-7b-v1.5).
 
-## Acknowledgments and provenance
+Training jointly optimizes DOP, LoRA adapters, the input embedding matrix and
+the language output head. The configuration uses two RTX 4090 GPUs, a global
+batch of 64, two epochs and an effective base learning rate of `3.2e-4`.
+Deterministic DOP warm-up and learning-rate warm-up have separate schedules.
+See [data preparation](docs/data_preparation.md) for dataset and feature sources,
+and [training settings](docs/configuration.md) for the optimization details.
 
-Consensus3D builds on [Chat-Scene](https://github.com/ZzZZCHS/Chat-Scene).
-We retain its object-identifier interface, feature preparation and language-model
-adaptation policy, and develop probabilistic object representations and paired
-cross-modal consensus at this interface. We also acknowledge ScanNet, Mask3D,
-Uni3D, DINOv2, the task datasets, Transformers and PEFT.
-See [Third-party notices](THIRD_PARTY_NOTICES.md) for source attribution.
+## Repository guide
+
+| Resource | Contents |
+| --- | --- |
+| [Object encoder](consensus3d/consensus3d.py) | DOP branches, distribution initialization, sampling, mean inference and object tokens |
+| [Language-model adaptation](consensus3d/finetuning.py) | LoRA targets, trainable parameters and selective input gradients |
+| [Configuration](configs/consensus3d_7b.json) | Architecture, batches, optimizer and training schedules |
+| [Architecture](docs/architecture.md) | DOP, CMC, the joint objective and the complete model flow |
+| [Data preparation](docs/data_preparation.md) | Dataset links, feature extraction and annotation formats |
+| [Example](examples/inspect_object_encoder.py) and [tests](tests/test_modules.py) | Executable module examples and behavioral checks |
+
+The code package contains the object encoder and language-model adaptation
+modules. The end-to-end trainer, CMC loss implementation, benchmark evaluation
+scripts and trained weights are not included.
 
 ## License
 
-The Consensus3D-specific material is made available under the
-[Academic Evaluation Source License](LICENSE), for noncommercial academic
-evaluation. Redistribution and commercial use require separate permission.
-Third-party material retains its original license; the upstream Chat-Scene MIT
-notice is preserved in [licenses/Chat-Scene-MIT.txt](licenses/Chat-Scene-MIT.txt).
-This is a source-available research preview, not an unrestricted open-source release.
-
-Questions about the released modules can be raised through this repository's issues.
-
+The project is available for noncommercial academic evaluation under the
+[Academic Evaluation Source License](LICENSE). Third-party copyright and
+license information is collected in [licenses](licenses/NOTICE.md).
