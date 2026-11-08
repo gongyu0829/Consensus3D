@@ -1,0 +1,40 @@
+Consensus3D Academic Evaluation Source License
+Version 1.0, 8 November 2026
+
+Copyright (c) 2026 Consensus3D authors.
+
+1. Scope
+This license applies to the Consensus3D-specific code and documentation in this
+release. Third-party material identified in THIRD_PARTY_NOTICES.md remains under
+its own license. This license does not revoke or restrict rights independently
+granted by a third-party license.
+
+2. Permission
+You may read, download, run, and privately modify the covered material solely
+for noncommercial academic evaluation, verification, and comparison. You may
+publish findings and benchmark results from such evaluation with appropriate
+attribution to Consensus3D and its third-party sources.
+
+3. Restrictions
+You may not redistribute the covered source code, modified versions, or a
+substantial portion of it without written permission from the copyright holders,
+except to the extent independently permitted by applicable law, third-party
+licenses, or the hosting platform's terms. Commercial use, commercial model
+training, and incorporation into a commercial product or service require separate
+written permission. Preserve copyright and attribution notices in permitted copies.
+
+4. No additional rights
+No patent, trademark, dataset, or model-weight license is granted. Each dataset,
+pretrained model, and third-party dependency is governed by its own terms.
+
+5. Disclaimer
+THE MATERIAL IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE AND NONINFRINGEMENT. TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE
+COPYRIGHT HOLDERS SHALL NOT BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY
+ARISING FROM USE OF THE MATERIAL.
+
+6. Termination
+The permissions granted by this license terminate upon a breach of its terms.
+For permission beyond this license, contact the repository owner.
+

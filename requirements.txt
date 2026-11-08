@@ -1,0 +1,8 @@
+# CPU or CUDA PyTorch must be installed separately for the local platform.
+torch>=2.2.1
+transformers==4.39.3
+peft==0.9.0
+numpy<2
+sentencepiece==0.2.0
+protobuf==4.25.3
+
