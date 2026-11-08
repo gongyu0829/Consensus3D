@@ -1,9 +1,6 @@
-"""Probabilistic object representations and their language-token interface.
+"""Probabilistic object representations and their language-token interface."""
 
-This module contains the released object encoder, not a complete task model.
-The identifier/geometry/appearance token interface follows Chat-Scene; see
-THIRD_PARTY_NOTICES.md. Consensus3D adds independent distributional branches.
-"""
+# Object-token ordering adapted from Chat-Scene (MIT); see licenses/NOTICE.md.
 
 from dataclasses import dataclass
 from typing import List

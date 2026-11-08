@@ -1,9 +1,6 @@
-"""LLM adaptation and selective input gradients used by Consensus3D.
+"""LLM adaptation and selective input gradients used by Consensus3D."""
 
-The adaptation policy follows the Chat-Scene implementation base. It is
-documented here as part of the full framework, not as a new contribution.
-See THIRD_PARTY_NOTICES.md for attribution and upstream licensing.
-"""
+# Adaptation policy adapted from Chat-Scene (MIT); see licenses/NOTICE.md.
 
 from typing import Dict, Sequence
 

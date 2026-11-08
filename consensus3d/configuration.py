@@ -1,4 +1,4 @@
-"""Load and validate the reference settings for the revised manuscript."""
+"""Load and validate Consensus3D architecture and training settings."""
 
 import json
 import math

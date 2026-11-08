@@ -1,4 +1,4 @@
-"""Selected Consensus3D modules for architecture inspection and evaluation."""
+"""Consensus3D object representations and language-model adaptation."""
 
 from .consensus3d import DistributionalObjectProjector, Consensus3DObjectEncoder
 
