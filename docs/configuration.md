@@ -1,0 +1,46 @@
+# Reference configuration
+
+The [JSON configuration](../configs/consensus3d_7b.json) records the settings of
+the revised manuscript. It is intended to accompany the released modules and
+architectural description; it is not an executable full-training entry point.
+
+| Setting | Value |
+| --- | --- |
+| Language model | Vicuna-7B-v1.5 |
+| Visual features | Frozen Uni3D geometry and DINOv2 appearance |
+| Training hardware | 2 NVIDIA RTX 4090 GPUs |
+| Training batch | 32 per GPU, 64 globally; no gradient accumulation |
+| Evaluation batch | 16 per GPU |
+| Training duration | 2 epochs |
+| Optimizer | AdamW, betas 0.9/0.999, weight decay 0.02 |
+| Effective base learning rate | 3.2e-4 |
+| Learning-rate schedule | Cosine; 0.1-epoch warm-up; minimum multiplier 0.01 |
+| Gradient norm clipping | 0.01 |
+| LoRA | Rank 16, alpha 16, dropout 0.05 |
+| Deterministic DOP warm-up | 2,000 optimizer updates |
+| Auxiliary weight ramp | 1,000 optimizer updates |
+| Final KL / CMC weights | 1e-6 / 0.02 |
+| CMC temperature | 0.07 |
+| CMC negative pool | Valid objects gathered across devices |
+| Candidate limit / generated response limit | 100 objects / 64 new tokens |
+| Random seed | 42 |
+
+The learning-rate argument `5e-6` is multiplied by the global batch size of 64
+to obtain `3.2e-4`. A trainer that consumes the effective rate directly must use
+`3.2e-4` without scaling it again. `load_configuration` checks this relationship.
+
+Learning-rate warm-up changes the optimizer step size. Deterministic DOP warm-up
+controls representation sampling and the activation of KL/CMC. These schedules
+have different purposes and units. At step 2,000, sampling is enabled and the
+auxiliary ramp starts at zero; at step 3,000, both auxiliary weights reach their
+configured maximum.
+
+The KL reduction in the configuration follows the manuscript: sum over latent
+dimensions, then average over valid objects and both modalities. The CMC
+configuration describes the full objective; its implementation is not part of
+this selected release.
+
+Exact projector dimensions and low-variance initialization appear in the JSON
+and model source. The full-dimensional example verifies the released projector
+interface without loading the 7B language model.
+
