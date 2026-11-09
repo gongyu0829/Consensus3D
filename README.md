@@ -1,5 +1,12 @@
 <h1 align="center">Consensus3D</h1>
 <p align="center"><strong>Constructing Probabilistic Object Representations for 3D Scene Understanding</strong></p>
+
+> **Code release status.** This is a partial code release containing the DOP
+> object encoder, object-token construction, language-model fine-tuning utilities,
+> and architecture and training documentation. The complete project, including
+> the training and evaluation pipeline, will be released upon acceptance of the paper.
+> See [release contents](#release-contents) for the current scope.
+
 <p align="center">
   <a href="#method">Method</a> ·
   <a href="#results">Results</a> ·
@@ -46,30 +53,68 @@ Feature-removal experiments further show improved grounding robustness with
 incomplete object evidence. Learned uncertainty increases as feature information
 is removed and is associated with harder-to-ground objects.
 
+The quick start below checks the released modules with synthetic inputs;
+reproducing these benchmark results requires the complete training and evaluation pipeline.
+
+## Release contents
+
+| Component | Available material |
+| --- | --- |
+| Framework architecture | [Guide](docs/architecture.md) covering scene inputs, paired features, probabilistic object tokens, language reasoning and task outputs |
+| DOP and object-token construction | [Executable module](consensus3d/consensus3d.py) with independent modality branches, low-variance initialization, staged sampling, mean inference and valid-object masking |
+| Language-model fine-tuning | [Executable utilities](consensus3d/finetuning.py) for LoRA, the trainable-parameter policy and selective input gradients |
+| Optimization settings | [Manuscript reference configuration](configs/consensus3d_7b.json) and [schedule and loss definitions](docs/configuration.md) |
+| Data preparation | [Dataset and preprocessing links](docs/data_preparation.md), feature formats and object-correspondence requirements |
+| Module verification | [CPU example](examples/inspect_object_encoder.py) and [tests](tests/test_modules.py) for DOP behavior and language-model adaptation |
+
+The current release does not include the end-to-end trainer, CMC/KL loss
+implementations, task data loaders and prompt/target assembly, preprocessing
+scripts, benchmark evaluation scripts, or trained checkpoints. Data and
+pretrained models are obtained separately from the linked providers.
+
 ## Getting started
 
-Use Python 3.10 or newer and a PyTorch build appropriate for your device.
+Use a Python 3.12 environment. The module example and tests have been checked
+with PyTorch 2.6.0 on CPU, Transformers 4.39.3 and PEFT 0.9.0.
+They require no GPU, dataset or pretrained language-model download.
 
 ```bash
 git clone https://github.com/gongyu0829/Consensus3D.git
 cd Consensus3D
+python -m pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
 python -m pip install -r requirements.txt
 python examples/inspect_object_encoder.py
 ```
 
-The example runs on CPU with synthetic paired object features. It demonstrates
-probabilistic projection, the transition from warm-up to sampling, mean-based
-inference, and construction of the object-token sequence.
+The example uses small, randomly initialized DOP branches and synthetic paired
+features to inspect mean-based inference and object-token construction. The
+output should contain:
 
-To use the paper's projector dimensions and run the module tests:
+```text
+"projected_shape": [2, 4, 32]
+"object_sequence_lengths": [9, 6]
+"initial_log_variance": -9.0
+"evaluation_uses_means": true
+```
+
+For the paper's projector dimensions, the same example reads the architecture
+settings from the JSON configuration and projects 1024-dimensional features to
+4096-dimensional object tokens:
 
 ```bash
 python examples/inspect_object_encoder.py --full-dimensions
+```
+
+To check deterministic warm-up, the transition to sampling, object masks,
+token ordering and gradients, run:
+
+```bash
 python -m unittest discover -s tests -v
 ```
 
-The tests cover distribution sampling, object masks, token ordering, and actual
-LoRA adaptation and gradient routing on a small randomly initialized language model.
+The six tests also apply PEFT LoRA to a small randomly initialized Llama model
+and check the trainable parameters and input-gradient routing. This checks the
+fine-tuning utilities without loading Vicuna-7B.
 
 ## Data and training
 
@@ -78,27 +123,12 @@ paired geometric and multi-view appearance features. Each object's identifier
 and visual tokens are combined with the language instruction and passed to
 [Vicuna-7B-v1.5](https://huggingface.co/lmsys/vicuna-7b-v1.5).
 
-Training jointly optimizes DOP, LoRA adapters, the input embedding matrix and
-the language output head. The configuration uses two RTX 4090 GPUs, a global
+The manuscript's training setup jointly optimizes DOP, LoRA adapters, the input
+embedding matrix and the language output head. It uses two RTX 4090 GPUs, a global
 batch of 64, two epochs and an effective base learning rate of `3.2e-4`.
 Deterministic DOP warm-up and learning-rate warm-up have separate schedules.
 See [data preparation](docs/data_preparation.md) for dataset and feature sources,
 and [training settings](docs/configuration.md) for the optimization details.
-
-## Repository guide
-
-| Resource | Contents |
-| --- | --- |
-| [Object encoder](consensus3d/consensus3d.py) | DOP branches, distribution initialization, sampling, mean inference and object tokens |
-| [Language-model adaptation](consensus3d/finetuning.py) | LoRA targets, trainable parameters and selective input gradients |
-| [Configuration](configs/consensus3d_7b.json) | Architecture, batches, optimizer and training schedules |
-| [Architecture](docs/architecture.md) | DOP, CMC, the joint objective and the complete model flow |
-| [Data preparation](docs/data_preparation.md) | Dataset links, feature extraction and annotation formats |
-| [Example](examples/inspect_object_encoder.py) and [tests](tests/test_modules.py) | Executable module examples and behavioral checks |
-
-The code package contains the object encoder and language-model adaptation
-modules. The end-to-end trainer, CMC loss implementation, benchmark evaluation
-scripts and trained weights are not included.
 
 ## License
 
