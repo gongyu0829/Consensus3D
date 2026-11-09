@@ -1,6 +1,6 @@
 {
   "model_name": "Consensus3D",
-  "configuration_role": "Consensus3D architecture and training settings",
+  "configuration_role": "Manuscript reference architecture and training settings",
   "architecture": {
     "language_backbone_size": "7B",
     "language_checkpoint": "lmsys/vicuna-7b-v1.5",
