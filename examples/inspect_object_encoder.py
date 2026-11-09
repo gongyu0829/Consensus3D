@@ -1,4 +1,4 @@
-"""Inspect the released object encoder with synthetic features, without data or LLM weights."""
+"""Inspect DOP mean inference and object tokens with synthetic features on CPU."""
 
 import argparse
 import json
@@ -14,14 +14,26 @@ from consensus3d.configuration import load_configuration
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--full-dimensions", action="store_true")
+    parser.add_argument(
+        "--full-dimensions", action="store_true",
+        help="Use the projector dimensions from the manuscript reference configuration.",
+    )
     args = parser.parse_args()
     config = load_configuration(Path(__file__).resolve().parents[1] / "configs/consensus3d_7b.json")
     torch.manual_seed(config["training"]["seed"])
-    feature_dim, hidden_dim = (1024, 4096) if args.full_dimensions else (16, 32)
-    model = Consensus3DObjectEncoder(feature_dim, feature_dim, hidden_dim)
-    geometry = torch.randn(2, 4, feature_dim)
-    appearance = torch.randn_like(geometry)
+    architecture = config["architecture"]
+    geometry_dim = architecture["geometry_feature_size"] if args.full_dimensions else 16
+    appearance_dim = architecture["appearance_feature_size"] if args.full_dimensions else 16
+    hidden_dim = architecture["language_hidden_size"] if args.full_dimensions else 32
+    model = Consensus3DObjectEncoder(
+        geometry_dim, appearance_dim, hidden_dim,
+        deterministic_warmup_steps=config["training"]["deterministic_dop_warmup_steps"],
+        log_variance_bias=architecture["log_variance_head_bias_init"],
+        log_variance_offset=architecture["log_variance_forward_offset"],
+        log_variance_max=architecture["log_variance_upper_bound"],
+    )
+    geometry = torch.randn(2, 4, geometry_dim)
+    appearance = torch.randn(2, 4, appearance_dim)
     valid = torch.tensor([[True, True, True, False], [True, True, False, False]])
     identifiers = torch.randn(2, 4, hidden_dim)
     model.eval()
