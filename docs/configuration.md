@@ -1,7 +1,10 @@
 # Training configuration
 
 The [JSON configuration](../configs/consensus3d_7b.json) records the Consensus3D
-architecture, fine-tuning policy and optimization settings.
+manuscript's architecture, fine-tuning policy and optimization settings.
+It is a reference configuration, not a training entry point. The CPU example
+reads the projector settings and seed; the full optimizer, loss computation and
+training schedules require the complete training pipeline.
 
 | Setting | Value |
 | --- | --- |
@@ -41,4 +44,8 @@ and cross-device negative pool used by the joint objective.
 Exact projector dimensions and low-variance initialization appear in the JSON
 and model source. The full-dimensional example verifies the released projector
 interface without loading the 7B language model.
+
+The package versions in `requirements.txt` specify the tested environment for
+the released module example and tests, separately from the training
+hyperparameters above.
 

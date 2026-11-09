@@ -23,7 +23,9 @@ grounded chain-of-thought supervision.
 
 ## Preparation from scenes
 
-Prepare paired features and task annotations with the following steps.
+The following workflow describes preparation of paired features and task annotations.
+This release provides source links and interface requirements; preprocessing
+scripts and task data loaders are not bundled.
 The [preprocessing tools](https://github.com/ZzZZCHS/Chat-Scene/tree/dev/preprocess)
 provide the corresponding feature and annotation format.
 

@@ -1,5 +1,9 @@
 # Architecture and optimization
 
+This guide describes the complete model flow. Executable code currently covers
+DOP, object-token construction and language-model adaptation; see
+[release contents](../README.md#release-contents) for implementation coverage.
+
 ## Scene observations to paired object features
 
 The input consists of a 3D scene, its associated multi-view images, and a language
@@ -81,6 +85,14 @@ weight decay. It is different from clipping the global gradient norm to 0.01.
 
 [`prepare_language_model`](../consensus3d/finetuning.py) exposes the parameter
 policy, and `selective_input_embeddings` implements the input-gradient routing.
+The caller first adds the object identifiers to the tokenizer and resizes the
+language model's token embeddings, then calls `prepare_language_model` before
+constructing the optimizer. During input assembly, the caller applies
+`selective_input_embeddings` with the added identifier range (end exclusive),
+and with `system_prompt=True` for the system prompt. This input routing is a
+separate call; installing LoRA alone does not apply it. The preparation utility
+keeps input embeddings and the output head in float32; mixed-precision training
+must also handle the forward computation through these modules.
 
 ## Training schedule
 
@@ -90,7 +102,10 @@ base learning rate of 3.2e-4 and a cosine schedule. Learning-rate warm-up lasts
 KL and CMC disabled. Sampling then begins, and the auxiliary weights increase
 linearly over 1,000 updates to 1e-6 for KL and 0.02 for CMC.
 
-The complete settings are in [the configuration](../configs/consensus3d_7b.json).
+The reference settings are in [the configuration](../configs/consensus3d_7b.json).
 The module tests check architecture behavior and gradient routing with synthetic
-inputs. See the [repository guide](../README.md#repository-guide) for the code package contents.
+inputs. In the object encoder, `global_step` is the number of completed optimizer
+updates and must be supplied by the caller during training. The encoder controls
+sampling only; the auxiliary-loss ramp and learning-rate schedule belong to the
+full training pipeline.
 
