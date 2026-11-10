@@ -58,7 +58,7 @@ class ObjectEncoderTests(unittest.TestCase):
     def test_configuration_has_consistent_scaled_learning_rate(self):
         config = load_configuration(Path(__file__).resolve().parents[1] / "configs/consensus3d_7b.json")
         self.assertEqual(config["architecture"]["language_checkpoint"], "lmsys/vicuna-7b-v1.5")
-        self.assertEqual(config["training"]["global_batch_size"], 64)
+        self.assertEqual(config["training"]["global_batch_size"], 32)
         self.assertEqual(config["training"]["epochs"], 2)
 
 
