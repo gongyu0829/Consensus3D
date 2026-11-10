@@ -96,8 +96,8 @@ must also handle the forward computation through these modules.
 
 ## Training schedule
 
-The two-epoch setup uses two RTX 4090 GPUs, a global batch of 64, AdamW, an effective
-base learning rate of 3.2e-4 and a cosine schedule. Learning-rate warm-up lasts
+The two-epoch setup uses two RTX 4090 GPUs, 16 training samples per GPU (32 globally),
+AdamW, an effective base learning rate of 1.6e-4 and a cosine schedule. Learning-rate warm-up lasts
 0.1 epoch. Separately, the first 2,000 updates use deterministic DOP means with
 KL and CMC disabled. Sampling then begins, and the auxiliary weights increase
 linearly over 1,000 updates to 1e-6 for KL and 0.02 for CMC.
