@@ -124,8 +124,9 @@ and visual tokens are combined with the language instruction and passed to
 [Vicuna-7B-v1.5](https://huggingface.co/lmsys/vicuna-7b-v1.5).
 
 The manuscript's training setup jointly optimizes DOP, LoRA adapters, the input
-embedding matrix and the language output head. It uses two RTX 4090 GPUs, a global
-batch of 64, two epochs and an effective base learning rate of `3.2e-4`.
+embedding matrix and the language output head. It uses two RTX 4090 GPUs, 16 training
+samples per GPU (32 globally), two epochs and an effective base learning rate of
+`1.6e-4`. Evaluation uses 16 samples per GPU.
 Deterministic DOP warm-up and learning-rate warm-up have separate schedules.
 See [data preparation](docs/data_preparation.md) for dataset and feature sources,
 and [training settings](docs/configuration.md) for the optimization details.
