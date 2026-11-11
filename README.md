@@ -24,6 +24,10 @@ and question answering through a common language interface.
   <img src="assets/framework.png" alt="Consensus3D framework: paired geometric and appearance features, distributional object projection, cross-modal consensus, and language-model responses." width="100%">
 </p>
 
+CMC provides instance-level contrastive supervision during training. The language
+model receives an interleaved sequence of object identifiers, geometry tokens
+and appearance tokens.
+
 ## Method
 
 - **Distributional Object Projector (DOP).** Independent geometry and appearance
@@ -54,7 +58,8 @@ incomplete object evidence. Learned uncertainty increases as feature information
 is removed and is associated with harder-to-ground objects.
 
 The quick start below checks the released modules with synthetic inputs;
-reproducing these benchmark results requires the complete training and evaluation pipeline.
+reproducing these benchmark results requires a compatible trained checkpoint,
+the benchmark data and features, and the complete task and evaluation pipeline.
 
 ## Release contents
 
@@ -65,7 +70,7 @@ reproducing these benchmark results requires the complete training and evaluatio
 | Language-model fine-tuning | [Executable utilities](consensus3d/finetuning.py) for LoRA, the trainable-parameter policy and selective input gradients |
 | Optimization settings | [Manuscript reference configuration](configs/consensus3d_7b.json) and [schedule and loss definitions](docs/configuration.md) |
 | Data preparation | [Dataset and preprocessing links](docs/data_preparation.md), feature formats and object-correspondence requirements |
-| Module verification | [CPU example](examples/inspect_object_encoder.py) and [tests](tests/test_modules.py) for DOP behavior and language-model adaptation |
+| Module verification | [Object-encoder example](examples/inspect_object_encoder.py), [DOP-to-LLM interface check](examples/inspect_language_interface.py), and [tests](tests/test_modules.py) |
 
 The current release does not include the end-to-end trainer, CMC/KL loss
 implementations, task data loaders and prompt/target assembly, preprocessing
@@ -115,6 +120,19 @@ python -m unittest discover -s tests -v
 The six tests also apply PEFT LoRA to a small randomly initialized Llama model
 and check the trainable parameters and input-gradient routing. This checks the
 fine-tuning utilities without loading Vicuna-7B.
+
+To inspect how object tokens connect to a language model, run:
+
+```bash
+python examples/inspect_language_interface.py
+```
+
+This CPU example connects the DOP branches to a small randomly initialized Llama.
+It masks the synthetic input prefix from the language loss, checks gradients
+through both DOP branches, LoRA, object identifiers and the output head, and checks
+mean-based evaluation with gradient checkpointing configured. All entries in
+`checks` should be `true`. It uses reduced dimensions and synthetic token IDs;
+it is an interface demonstration, not a task evaluator or the complete training objective.
 
 ## Data and training
 
