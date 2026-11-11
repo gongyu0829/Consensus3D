@@ -57,10 +57,6 @@ Feature-removal experiments further show improved grounding robustness with
 incomplete object evidence. Learned uncertainty increases as feature information
 is removed and is associated with harder-to-ground objects.
 
-The quick start below checks the released modules with synthetic inputs;
-reproducing these benchmark results requires a compatible trained checkpoint,
-the benchmark data and features, and the complete task and evaluation pipeline.
-
 ## Release contents
 
 | Component | Available material |
@@ -72,16 +68,16 @@ the benchmark data and features, and the complete task and evaluation pipeline.
 | Data preparation | [Dataset and preprocessing links](docs/data_preparation.md), feature formats and object-correspondence requirements |
 | Module verification | [Object-encoder example](examples/inspect_object_encoder.py), [DOP-to-LLM interface check](examples/inspect_language_interface.py), and [tests](tests/test_modules.py) |
 
-The current release does not include the end-to-end trainer, CMC/KL loss
-implementations, task data loaders and prompt/target assembly, preprocessing
-scripts, benchmark evaluation scripts, or trained checkpoints. Data and
-pretrained models are obtained separately from the linked providers.
+The complete release will add the end-to-end trainer, CMC/KL loss implementations,
+task data loaders, prompt/target assembly, preprocessing and benchmark evaluation
+scripts, and trained checkpoints. Dataset and pretrained-model sources are
+listed in [data preparation](docs/data_preparation.md).
 
 ## Getting started
 
 Use a Python 3.12 environment. The module example and tests have been checked
 with PyTorch 2.6.0 on CPU, Transformers 4.39.3 and PEFT 0.9.0.
-They require no GPU, dataset or pretrained language-model download.
+The examples run locally on CPU with randomly initialized models and synthetic inputs.
 
 ```bash
 git clone https://github.com/gongyu0829/Consensus3D.git
@@ -118,8 +114,7 @@ python -m unittest discover -s tests -v
 ```
 
 The six tests also apply PEFT LoRA to a small randomly initialized Llama model
-and check the trainable parameters and input-gradient routing. This checks the
-fine-tuning utilities without loading Vicuna-7B.
+and check the trainable parameters and input-gradient routing.
 
 To inspect how object tokens connect to a language model, run:
 
@@ -131,8 +126,8 @@ This CPU example connects the DOP branches to a small randomly initialized Llama
 It masks the synthetic input prefix from the language loss, checks gradients
 through both DOP branches, LoRA, object identifiers and the output head, and checks
 mean-based evaluation with gradient checkpointing configured. All entries in
-`checks` should be `true`. It uses reduced dimensions and synthetic token IDs;
-it is an interface demonstration, not a task evaluator or the complete training objective.
+`checks` should be `true`. Reduced dimensions and synthetic token IDs make the
+interface example lightweight and self-contained.
 
 ## Data and training
 
@@ -143,7 +138,7 @@ and visual tokens are combined with the language instruction and passed to
 
 The manuscript's training setup jointly optimizes DOP, LoRA adapters, the input
 embedding matrix and the language output head. It uses two RTX 4090 GPUs, 16 training
-samples per GPU (32 globally), two epochs and an effective base learning rate of
+samples per GPU (32 globally), three epochs and an effective base learning rate of
 `1.6e-4`. Evaluation uses 16 samples per GPU.
 Deterministic DOP warm-up and learning-rate warm-up have separate schedules.
 See [data preparation](docs/data_preparation.md) for dataset and feature sources,
