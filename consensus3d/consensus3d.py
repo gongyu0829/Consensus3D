@@ -1,6 +1,5 @@
 """Probabilistic object representations and their language-token interface."""
 
-# Object-token ordering adapted from Chat-Scene (MIT); see licenses/NOTICE.md.
 
 from dataclasses import dataclass
 from typing import List
