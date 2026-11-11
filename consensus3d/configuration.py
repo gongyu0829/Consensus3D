@@ -17,7 +17,7 @@ def load_configuration(path):
         raise ValueError("Effective learning rate is inconsistent with the scaling rule.")
     if config["architecture"]["language_hidden_size"] != 4096:
         raise ValueError("This reference configuration targets the 7B language interface.")
-    if training["epochs"] != 2:
-        raise ValueError("The manuscript reference configuration uses two epochs.")
+    if training["epochs"] != 3:
+        raise ValueError("The manuscript reference configuration uses three epochs.")
     return config
 
