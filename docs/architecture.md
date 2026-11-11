@@ -51,7 +51,6 @@ the complementary evidence belonging to the same object.
 
 The reference KL reduction sums latent dimensions for each object and then averages
 over valid objects and the two modalities, matching the manuscript equations.
-Its numerical coefficient should be interpreted together with this reduction.
 
 ## Object tokens to task responses
 
@@ -81,7 +80,7 @@ On the text-input path, original-vocabulary and system-prompt activations are
 detached. Added object-identifier activations retain gradients so their embeddings
 can learn explicit instance references. This routing acts on input activations;
 the embedding matrix is still included in the optimizer and can be affected by
-weight decay. It is different from clipping the global gradient norm to 0.01.
+weight decay. Global gradient-norm clipping uses a threshold of 0.01.
 
 [`prepare_language_model`](../consensus3d/finetuning.py) exposes the parameter
 policy, and `selective_input_embeddings` implements the input-gradient routing.
@@ -89,19 +88,18 @@ The caller first adds the object identifiers to the tokenizer and resizes the
 language model's token embeddings, then calls `prepare_language_model` before
 constructing the optimizer. During input assembly, the caller applies
 `selective_input_embeddings` with the added identifier range (end exclusive),
-and with `system_prompt=True` for the system prompt. This input routing is a
-separate call; installing LoRA alone does not apply it. The preparation utility
+and with `system_prompt=True` for the system prompt. The preparation utility
 keeps input embeddings and the output head in float32; mixed-precision training
 must also handle the forward computation through these modules.
 
 The [language-interface example](../examples/inspect_language_interface.py)
 connects these utilities to DOP using a small random Llama on CPU. It demonstrates
 prefix masking for response-only supervision, selective input gradients, and
-forward and backward connectivity without task data or pretrained weights.
+forward and backward connectivity using synthetic object features and token IDs.
 
 ## Training schedule
 
-The two-epoch setup uses two RTX 4090 GPUs, 16 training samples per GPU (32 globally),
+The three-epoch setup uses two RTX 4090 GPUs, 16 training samples per GPU (32 globally),
 AdamW, an effective base learning rate of 1.6e-4 and a cosine schedule. Learning-rate warm-up lasts
 0.1 epoch. Separately, the first 2,000 updates use deterministic DOP means with
 KL and CMC disabled. Sampling then begins, and the auxiliary weights increase
@@ -110,7 +108,7 @@ linearly over 1,000 updates to 1e-6 for KL and 0.02 for CMC.
 The reference settings are in [the configuration](../configs/consensus3d_7b.json).
 The module tests check architecture behavior and gradient routing with synthetic
 inputs. In the object encoder, `global_step` is the number of completed optimizer
-updates and must be supplied by the caller during training. The encoder controls
-sampling only; the auxiliary-loss ramp and learning-rate schedule belong to the
-full training pipeline.
+updates and is supplied by the caller during training. It controls the transition
+from deterministic means to sampled tokens. The joint training schedule combines
+this transition with the auxiliary-loss ramp and learning-rate schedule above.
 

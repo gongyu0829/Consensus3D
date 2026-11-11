@@ -2,9 +2,8 @@
 
 The [JSON configuration](../configs/consensus3d_7b.json) records the Consensus3D
 manuscript's architecture, fine-tuning policy and optimization settings.
-It is a reference configuration, not a training entry point. The CPU example
-reads the projector settings and seed; the full optimizer, loss computation and
-training schedules require the complete training pipeline.
+The executable examples read the projector settings, fine-tuning policy and
+random seed from this file. The table below specifies the training setup.
 
 | Setting | Value |
 | --- | --- |
@@ -13,7 +12,7 @@ training schedules require the complete training pipeline.
 | Training hardware | 2 NVIDIA RTX 4090 GPUs |
 | Training batch | 16 per GPU, 32 globally; no gradient accumulation |
 | Evaluation batch | 16 per GPU |
-| Training duration | 2 epochs |
+| Training duration | 3 epochs (indices 0, 1 and 2) |
 | Optimizer | AdamW, betas 0.9/0.999, weight decay 0.02 |
 | Effective base learning rate | 1.6e-4 |
 | Learning-rate schedule | Cosine; 0.1-epoch warm-up; minimum multiplier 0.01 |
@@ -42,8 +41,8 @@ and both modalities. The CMC settings specify the temperature, objective weight
 and cross-device negative pool used by the joint objective.
 
 Exact projector dimensions and low-variance initialization appear in the JSON
-and model source. The full-dimensional example verifies the released projector
-interface without loading the 7B language model.
+and model source. The full-dimensional example verifies the projector interface at the paper's
+1024-dimensional input and 4096-dimensional output sizes.
 
 The package versions in `requirements.txt` specify the tested environment for
 the released module example and tests, separately from the training

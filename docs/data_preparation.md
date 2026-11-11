@@ -3,7 +3,6 @@
 ## Dataset sources
 
 Obtain data through its original providers and follow their access and usage terms.
-No dataset is redistributed in this repository.
 
 | Resource | Purpose | Source |
 | --- | --- | --- |
@@ -23,9 +22,8 @@ grounded chain-of-thought supervision.
 
 ## Preparation from scenes
 
-The following workflow describes preparation of paired features and task annotations.
-This release provides source links and interface requirements; preprocessing
-scripts and task data loaders are not bundled.
+The following workflow describes preparation of paired features and task annotations,
+with source links and interface requirements for each stage.
 The [preprocessing tools](https://github.com/ZzZZCHS/Chat-Scene/tree/dev/preprocess)
 provide the corresponding feature and annotation format.
 
@@ -67,9 +65,8 @@ The candidate limit is 100. A missing feature is represented by a zero vector
 without deleting the corresponding candidate or the other modality.
 
 Object identifiers, both modalities and target references must follow the same
-permutation. The released object encoder assumes its inputs are already aligned
-and does not infer correspondence from independently shuffled feature arrays.
+permutation. Align these records by object identifier before passing them to
+the object encoder.
 
-The synthetic example demonstrates this tensor interface without requiring
-ScanNet access.
+The synthetic example demonstrates this tensor interface with generated inputs.
 
