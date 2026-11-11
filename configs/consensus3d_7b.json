@@ -44,7 +44,7 @@
     "global_batch_size": 32,
     "gradient_accumulation": 1,
     "evaluation_samples_per_gpu": 16,
-    "epochs": 2,
+    "epochs": 3,
     "optimizer": "AdamW",
     "learning_rate_argument": 0.000005,
     "learning_rate_scaling": "argument times global batch size",
