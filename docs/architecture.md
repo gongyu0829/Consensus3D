@@ -94,6 +94,11 @@ separate call; installing LoRA alone does not apply it. The preparation utility
 keeps input embeddings and the output head in float32; mixed-precision training
 must also handle the forward computation through these modules.
 
+The [language-interface example](../examples/inspect_language_interface.py)
+connects these utilities to DOP using a small random Llama on CPU. It demonstrates
+prefix masking for response-only supervision, selective input gradients, and
+forward and backward connectivity without task data or pretrained weights.
+
 ## Training schedule
 
 The two-epoch setup uses two RTX 4090 GPUs, 16 training samples per GPU (32 globally),
