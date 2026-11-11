@@ -59,7 +59,7 @@ class ObjectEncoderTests(unittest.TestCase):
         config = load_configuration(Path(__file__).resolve().parents[1] / "configs/consensus3d_7b.json")
         self.assertEqual(config["architecture"]["language_checkpoint"], "lmsys/vicuna-7b-v1.5")
         self.assertEqual(config["training"]["global_batch_size"], 32)
-        self.assertEqual(config["training"]["epochs"], 2)
+        self.assertEqual(config["training"]["epochs"], 3)
 
 
 class LanguageAdaptationTests(unittest.TestCase):
