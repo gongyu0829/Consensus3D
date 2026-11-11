@@ -1,7 +1,5 @@
 """LLM adaptation and selective input gradients used by Consensus3D."""
 
-# Adaptation policy adapted from Chat-Scene (MIT); see licenses/NOTICE.md.
-
 from typing import Dict, Sequence
 
 import torch
