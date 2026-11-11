@@ -1,7 +1,7 @@
 """Check DOP-to-language-model connectivity using random CPU modules.
 
-The small Llama and synthetic token IDs exercise the released interfaces.
-They do not load Vicuna, use task prompts, or evaluate benchmark accuracy.
+A small randomly initialized Llama and synthetic token IDs exercise response
+supervision, gradient routing, and deterministic evaluation.
 """
 
 import json
@@ -142,7 +142,6 @@ def main():
         "visual_token_count": visual_length,
         "language_model": "small randomly initialized Llama",
         "synthetic_inputs": True,
-        "task_benchmark_evaluation": False,
     }, indent=2))
 
 
